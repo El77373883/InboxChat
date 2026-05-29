@@ -3251,7 +3251,7 @@ async function openStory(story) {
   }, 100);
   storyTimer = setTimeout(() => { nextStory(); }, duration);
   if (currentUser && story.userId !== currentUser.uid) {
-    const viewId = `${story.id}\_${currentUser.uid}`;
+    const viewId = `${story.id}_${currentUser.uid}`;
     const viewRef = doc(db, 'storyViews', viewId);
     try {
       const viewDocSnap = await getDoc(viewRef);
