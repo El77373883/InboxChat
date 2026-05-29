@@ -948,21 +948,26 @@
     .comment-input:focus { border-color: var(--accent); }
     .comment-submit { padding: 8px 20px; background: var(--accent); color: white; border: none; border-radius: 24px; font-size: 13px; font-weight: 500; cursor: pointer; }
     .comment-submit:hover { background: #1d4ed8; }
-    .report-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+.report-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
     .report-modal.active { display: flex; }
-    .report-sheet { background: var(--surface); width: 90%; max-width: 400px; border-radius: 20px; padding: 24px; animation: slideUp 0.3s ease; }
-    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .report-sheet { background: var(--surface); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 28px 24px 36px; animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow-y: auto; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .report-title { font-size: 18px; font-weight: 700; }
-    .report-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
-    .report-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-    .report-option { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; }
+    .report-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+    .report-close { background: rgba(128,128,128,0.15); border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; color: var(--text-muted); display:flex; align-items:center; justify-content:center; }
+    .report-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .report-option { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 14px; cursor: pointer; transition: all 0.18s; }
     .report-option:hover { background: var(--bg); border-color: var(--accent); }
-    .report-option.selected { background: rgba(37,99,235,0.05); border-color: var(--accent); }
-    .report-option-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; }
+    .report-option.selected { background: rgba(37,99,235,0.06); border-color: var(--accent); }
+    .report-option-icon { font-size: 22px; min-width: 28px; }
+    .report-option-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .report-option-text { font-size: 14px; font-weight: 600; color: var(--text); }
+    .report-option-desc { font-size: 12px; color: var(--text-muted); }
+    .report-option-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: border-color 0.18s; }
+    .report-option.selected .report-option-radio { border-color: var(--accent); }
     .report-option.selected .report-option-radio::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-    .report-option-text { flex: 1; font-size: 14px; }
-    .report-submit { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    
+    .report-submit { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .report-submit:hover { opacity: 0.88; }
     /* ===== TAB BAR INFERIOR PREMIUM (ESTILO FACEBOOK) ===== */
 .tab-bar-premium {
   position: fixed;
@@ -1596,23 +1601,75 @@ body.dark .tab-premium-item {
   <input type="file" id="profile-cover-input" accept="image/*,image/gif" style="display:none">
 
 <!-- Modal de Reporte -->
-  <div class="report-modal" id="report-modal">
-    <div class="report-sheet">
+<div class="report-modal" id="report-modal">
+  <div class="report-sheet">
+
+    <!-- Vista 1: Opciones -->
+    <div id="report-view-options">
       <div class="report-header">
-        <span class="report-title">Reportar contenido</span>
+        <span class="report-title">⚠️ Reportar contenido</span>
         <button class="report-close" id="report-close">×</button>
       </div>
+      <p class="report-subtitle">¿Por qué quieres reportar este contenido? Tu reporte es anónimo.</p>
       <div class="report-options">
-        <div class="report-option" data-reason="spam"><div class="report-option-radio"></div><span class="report-option-text">Spam o contenido engañoso</span></div>
-        <div class="report-option" data-reason="harassment"><div class="report-option-radio"></div><span class="report-option-text">Acoso o bullying</span></div>
-        <div class="report-option" data-reason="violence"><div class="report-option-radio"></div><span class="report-option-text">Violencia o contenido peligroso</span></div>
-        <div class="report-option" data-reason="hate"><div class="report-option-radio"></div><span class="report-option-text">Discurso de odio</span></div>
-        <div class="report-option" data-reason="nudity"><div class="report-option-radio"></div><span class="report-option-text">Desnudos o actividad sexual</span></div>
-        <div class="report-option" data-reason="other"><div class="report-option-radio"></div><span class="report-option-text">Otro motivo</span></div>
+        <div class="report-option" data-reason="spam">
+          <span class="report-option-icon">🚫</span>
+          <div class="report-option-info"><span class="report-option-text">Spam o contenido engañoso</span><span class="report-option-desc">Publicidad no deseada o información falsa</span></div>
+          <div class="report-option-radio"></div>
+        </div>
+        <div class="report-option" data-reason="harassment">
+          <span class="report-option-icon">😡</span>
+          <div class="report-option-info"><span class="report-option-text">Acoso o bullying</span><span class="report-option-desc">Amenazas, insultos o intimidación</span></div>
+          <div class="report-option-radio"></div>
+        </div>
+        <div class="report-option" data-reason="violence">
+          <span class="report-option-icon">⚡</span>
+          <div class="report-option-info"><span class="report-option-text">Violencia o contenido peligroso</span><span class="report-option-desc">Imágenes o mensajes que incitan a la violencia</span></div>
+          <div class="report-option-radio"></div>
+        </div>
+        <div class="report-option" data-reason="hate">
+          <span class="report-option-icon">🛑</span>
+          <div class="report-option-info"><span class="report-option-text">Discurso de odio</span><span class="report-option-desc">Contenido discriminatorio o de odio</span></div>
+          <div class="report-option-radio"></div>
+        </div>
+        <div class="report-option" data-reason="nudity">
+          <span class="report-option-icon">🔞</span>
+          <div class="report-option-info"><span class="report-option-text">Desnudos o contenido sexual</span><span class="report-option-desc">Material explícito o inapropiado</span></div>
+          <div class="report-option-radio"></div>
+        </div>
+        <div class="report-option" data-reason="misinformation">
+          <span class="report-option-icon">📰</span>
+          <div class="report-option-info"><span class="report-option-text">Desinformación</span><span class="report-option-desc">Noticias falsas o datos incorrectos</span></div>
+          <div class="report-option-radio"></div>
+        </div>
+        <div class="report-option" data-reason="other">
+          <span class="report-option-icon">📝</span>
+          <div class="report-option-info"><span class="report-option-text">Otro motivo</span><span class="report-option-desc">Algo que no está en la lista</span></div>
+          <div class="report-option-radio"></div>
+        </div>
       </div>
       <button class="report-submit" id="report-submit">Enviar reporte</button>
     </div>
+
+    <!-- Vista 2: Confirmación (oculta al inicio) -->
+    <div id="report-view-success" style="display:none; text-align:center; padding: 10px 0;">
+      <div style="font-size:56px; margin-bottom:16px;">✅</div>
+      <h3 style="font-size:20px; font-weight:700; margin-bottom:10px; color:var(--text);">¡Reporte enviado!</h3>
+      <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:8px;">
+        Hemos recibido tu reporte y lo hemos enviado a nuestro equipo de administración.
+      </p>
+      <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:20px;">
+        Nuestro equipo revisará el contenido en un plazo de <strong>24 a 48 horas</strong> y tomará las medidas necesarias. Te notificaremos con una respuesta.
+      </p>
+      <p style="font-size:13px; color:var(--accent); font-weight:600; margin-bottom:24px;">
+        🙏 Muchas gracias por ayudarnos a mantener InboxChat seguro para todos.
+      </p>
+      <button class="report-submit" id="report-success-close">Entendido</button>
+    </div>
+
   </div>
+</div>
+
 
   <script type="module">
     // ===== EVENT LISTENERS BÁSICOS =====
@@ -1621,6 +1678,64 @@ body.dark .tab-premium-item {
     let currentReportId = null;
     let currentReportAuthorId = null;
     let selectedReason = null;
+    
+    // ===== SISTEMA DE REPORTES =====
+function openReportModal(type, id, authorId) {
+  currentReportType = type;
+  currentReportId = id;
+  currentReportAuthorId = authorId;
+  selectedReason = null;
+  document.querySelectorAll('.report-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById('report-view-options').style.display = 'block';
+  document.getElementById('report-view-success').style.display = 'none';
+  document.getElementById('report-modal').classList.add('active');
+}
+
+document.getElementById('report-close')?.addEventListener('click', () => {
+  document.getElementById('report-modal').classList.remove('active');
+});
+
+document.getElementById('report-modal')?.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('report-modal')) {
+    document.getElementById('report-modal').classList.remove('active');
+  }
+});
+
+document.querySelectorAll('.report-option').forEach(option => {
+  option.addEventListener('click', () => {
+    document.querySelectorAll('.report-option').forEach(o => o.classList.remove('selected'));
+    option.classList.add('selected');
+    selectedReason = option.dataset.reason;
+  });
+});
+
+document.getElementById('report-submit')?.addEventListener('click', async () => {
+  if (!selectedReason) {
+    alert('Por favor selecciona un motivo para reportar.');
+    return;
+  }
+  try {
+    await addDoc(collection(db, 'reports'), {
+      type: currentReportType,
+      targetId: currentReportId,
+      authorId: currentReportAuthorId,
+      reportedBy: auth.currentUser?.uid || null,
+      reason: selectedReason,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+    document.getElementById('report-view-options').style.display = 'none';
+    document.getElementById('report-view-success').style.display = 'block';
+  } catch(e) {
+    console.error('Error al reportar:', e);
+    alert('Ocurrió un error al enviar el reporte. Intenta de nuevo.');
+  }
+});
+
+document.getElementById('report-success-close')?.addEventListener('click', () => {
+  document.getElementById('report-modal').classList.remove('active');
+});
+
 
     function openSidebar() { 
       document.getElementById('sidebar')?.classList.add('active'); 
