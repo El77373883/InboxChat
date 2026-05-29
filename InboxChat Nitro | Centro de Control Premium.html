@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>InboxChat Nitro | Centro de Control Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0a0a0f 0%, #12121a 100%); min-height: 100vh; color: #e1e7f0; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #1e1e2a; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #2e2e3a; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3e3e4a; }
+    .nitro-container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    .nitro-header { background: linear-gradient(135deg, #1e1e2a 0%, #15151f 100%); border-radius: 24px; padding: 32px 40px; margin-bottom: 32px; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+    .nitro-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #5865f2, #eb459e, #5865f2); background-size: 200% 100%; animation: headerBorder 3s ease infinite; }
+    @keyframes headerBorder { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    .nitro-header h1 { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #ffffff, #b9bbbe); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-flex; align-items: center; gap: 12px; }
+    .nitro-badge-icon { background: linear-gradient(135deg, #5865f2, #eb459e); border-radius: 16px; padding: 8px 16px; font-size: 14px; font-weight: 600; color: white; display: inline-flex; align-items: center; gap: 8px; }
+    .user-panel { background: #1e1e2a; border-radius: 20px; padding: 20px 24px; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; border: 1px solid rgba(255,255,255,0.05); }
+    .user-info { display: flex; align-items: center; gap: 16px; }
+    .user-avatar-large { width: 56px; height: 56px; background: linear-gradient(135deg, #5865f2, #eb459e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; position: relative; }
+    .user-avatar-large::after { content: '💎'; position: absolute; bottom: -4px; right: -4px; background: #1e1e2a; border-radius: 50%; font-size: 14px; padding: 2px; }
+    .user-details h3 { font-size: 18px; font-weight: 600; color: white; }
+    .user-details p { font-size: 13px; color: #b9bbbe; }
+    .user-badge-nitro { background: linear-gradient(135deg, #5865f2, #eb459e); padding: 8px 20px; border-radius: 40px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .lotes-section { margin-bottom: 48px; }
+    .section-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; color: #e1e7f0; }
+    .lotes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .lote-card { background: #1e1e2a; border-radius: 20px; padding: 24px; transition: all 0.2s ease; cursor: pointer; border: 2px solid transparent; position: relative; overflow: hidden; }
+    .lote-card:hover { transform: translateY(-2px); background: #252530; }
+    .lote-card.is-active { border-color: #5865f2; background: linear-gradient(135deg, rgba(88,101,242,0.1), #1e1e2a); }
+    .lote-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .lote-icon { font-size: 36px; }
+    .lote-title { font-size: 18px; font-weight: 700; }
+    .lote-desc { font-size: 13px; color: #b9bbbe; margin-bottom: 16px; line-height: 1.5; }
+    .lote-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; }
+    .status-active { background: #23a55a; color: white; }
+    .status-owned { background: #4e5058; color: #e1e7f0; }
+    .placa-preview-row { position: relative; overflow: hidden; border-radius: 10px; margin-bottom: 14px; min-height: 52px; display: flex; align-items: center; padding: 0 14px; gap: 10px; }
+    .placa-preview-row video, .placa-preview-row .placa-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; border-radius: 10px; }
+    .placa-preview-row .placa-bg { background-size: cover; background-position: center; opacity: 0.9; }
+    .placa-preview-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#ff6b35,#ffd700); flex-shrink: 0; position: relative; z-index: 1; }
+    .placa-preview-name { position: relative; z-index: 1; font-weight: 700; font-size: 14px; }
+    .animaciones-panel { background: #1e1e2a; border-radius: 20px; padding: 28px; margin-bottom: 32px; border: 1px solid rgba(255,255,255,0.05); }
+    .animaciones-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .animaciones-count { background: #2e2e3a; padding: 6px 14px; border-radius: 40px; font-size: 13px; font-weight: 600; color: #b9bbbe; }
+    .animaciones-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+    .animacion-item { background: #252530; border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; border: 1px solid transparent; }
+    .animacion-item:hover { background: #2a2a35; border-color: rgba(88,101,242,0.3); }
+    .animacion-left { display: flex; align-items: center; gap: 14px; }
+    .animacion-icon { width: 44px; height: 44px; background: #1e1e2a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .animacion-info h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: white; }
+    .animacion-info p { font-size: 12px; color: #b9bbbe; }
+    .discord-toggle { width: 44px; height: 24px; background: #4e5058; border-radius: 30px; cursor: pointer; transition: all 0.2s ease; position: relative; flex-shrink: 0; }
+    .discord-toggle.active { background: #5865f2; }
+    .discord-toggle::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 3px; transition: transform 0.2s ease; }
+    .discord-toggle.active::after { transform: translateX(19px); }
+    .personalizacion-panel { background: #1e1e2a; border-radius: 20px; padding: 28px; margin-bottom: 32px; }
+    .config-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 28px; margin-top: 20px; }
+    .config-label { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; font-weight: 500; color: #b9bbbe; }
+    input[type="range"] { width: 100%; height: 6px; background: #2e2e3a; border-radius: 10px; -webkit-appearance: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #5865f2; border-radius: 50%; cursor: pointer; }
+    .duration-buttons { display: flex; gap: 12px; }
+    .duration-btn { flex: 1; padding: 10px; background: #252530; border: 1px solid #2e2e3a; border-radius: 12px; color: #e1e7f0; cursor: pointer; text-align: center; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+    .duration-btn.active { background: #5865f2; border-color: #5865f2; }
+    .color-picker-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+    .color-swatch { width: 44px; height: 44px; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .color-swatch.active { border-color: white; transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+    .action-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary { flex: 1; padding: 14px 28px; background: #5865f2; border: none; border-radius: 40px; font-size: 15px; font-weight: 600; color: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-primary:hover { background: #4752c4; transform: scale(0.98); }
+    .btn-secondary { flex: 1; padding: 14px 28px; background: #2e2e3a; border: none; border-radius: 40px; font-size: 15px; font-weight: 600; color: #e1e7f0; cursor: pointer; transition: all 0.2s; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-secondary:hover { background: #3e3e4a; }
+    .empty-state { text-align: center; padding: 80px 40px; background: #1e1e2a; border-radius: 20px; }
+    .empty-state-icon { font-size: 64px; margin-bottom: 20px; }
+    .empty-state h3 { font-size: 24px; margin-bottom: 12px; }
+    .empty-state p { color: #b9bbbe; margin-bottom: 28px; }
+    .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: all 0.3s; }
+    .loading-overlay.active { visibility: visible; opacity: 1; }
+    .discord-loader { width: 48px; height: 48px; border: 4px solid #2e2e3a; border-top-color: #5865f2; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast-notification { position: fixed; bottom: 24px; right: 24px; background: #1e1e2a; border-left: 4px solid #23a55a; padding: 16px 24px; border-radius: 12px; color: white; z-index: 1100; animation: slideIn 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.3); max-width: 320px; }
+    @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+    @keyframes slideOut { from{transform:translateX(0);opacity:1} to{transform:translateX(100%);opacity:0} }
+    .shine { animation: textShine 2s linear infinite; background: linear-gradient(90deg,#fff,#ffd700,#fff); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+    .glow { animation: textGlow 1.5s ease-in-out infinite; }
+    .fire { animation: textFire 0.5s ease-in-out infinite; }
+    .neon { animation: textNeon 1s ease-in-out infinite; }
+    .rainbow { animation: textRainbow 3s linear infinite; }
+    @keyframes textShine { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    @keyframes textGlow { 0%,100%{text-shadow:0 0 5px currentColor} 50%{text-shadow:0 0 20px currentColor} }
+    @keyframes textFire { 0%,100%{text-shadow:0 0 5px #ff4500} 50%{text-shadow:0 0 15px #ff6600} }
+    @keyframes textNeon { 0%,100%{text-shadow:0 0 5px #00ffff} 50%{text-shadow:0 0 20px #00ffff} }
+    @keyframes textRainbow { 0%{color:#ff0000} 17%{color:#ffff00} 33%{color:#00ff00} 50%{color:#00ffff} 67%{color:#0000ff} 83%{color:#ff00ff} 100%{color:#ff0000} }
+    @media (max-width: 768px) {
+      .nitro-container{padding:20px 16px} .nitro-header{padding:24px} .nitro-header h1{font-size:24px}
+      .user-panel{flex-direction:column;align-items:flex-start} .animaciones-grid{grid-template-columns:1fr}
+      .config-row{grid-template-columns:1fr} .action-buttons{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="discord-loader"></div>
+</div>
+
+<div class="nitro-container">
+  <div class="nitro-header">
+    <h1><span>💎</span> InboxChat Nitro</h1>
+    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
+      <span class="nitro-badge-icon">🎨 Personalización total</span>
+      <span class="nitro-badge-icon">✨ Efectos exclusivos</span>
+      <span class="nitro-badge-icon">⚡ Sin límites</span>
+    </div>
+  </div>
+  <div id="dynamicContent"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_K0MDDuatq8YvrMdAMXOg9NXcZ7q7tm4",
+    authDomain: "facebook-b2f45.firebaseapp.com",
+    projectId: "facebook-b2f45",
+    storageBucket: "facebook-b2f45.firebasestorage.app",
+    messagingSenderId: "865628358385",
+    appId: "1:865628358385:web:fbdb3144e221bad1fccb50"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let lotesDB = [];
+  let currentUser = null;
+  let userProfile = null;
+  let currentLote = null;
+
+  let currentAnimations = {
+    placa: true, anillo: true, fondo: true, texto: true,
+    portada: false, particulas: false, entrada: false, estados: false, insignias: false
+  };
+
+  const animaciones = [
+    { id: "placa",      icono: "🏷️", nombre: "Placa de nombre",      desc: "Fondo animado detrás de tu nombre" },
+    { id: "anillo",     icono: "💍", nombre: "Anillo de avatar",      desc: "Anillo giratorio alrededor del avatar" },
+    { id: "fondo",      icono: "🎬", nombre: "Fondo de perfil",       desc: "GIF/video de fondo en tu perfil" },
+    { id: "texto",      icono: "✨", nombre: "Texto animado",         desc: "Efecto de color/brillo en tu nombre" },
+    { id: "portada",    icono: "🖼️", nombre: "Portada animada",      desc: "Gradiente animado en la portada" },
+    { id: "particulas", icono: "⭐", nombre: "Partículas de fondo",   desc: "Elementos flotantes decorativos" },
+    { id: "entrada",    icono: "💥", nombre: "Animación de entrada",  desc: "Aparición explosiva al cargar" },
+    { id: "estados",    icono: "💕", nombre: "Estados animados",      desc: "Pills flotantes en el estado" },
+    { id: "insignias",  icono: "✓",  nombre: "Insignias animadas",    desc: "Rotación y pulso en insignias" }
+  ];
+
+  let currentConfig = { intensidad: 70, duracion: 7, color: "#5865f2" };
+
+  function showLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('active', show);
+  }
+
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.borderLeftColor = type === 'success' ? '#23a55a' : '#ed4245';
+    toast.innerHTML = `<strong>${type === 'success' ? '✓' : '⚠️'}</strong> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = 'slideOut 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  function isVideoUrl(url) {
+    return url && (url.includes('.mp4') || url.includes('.webm') || url.includes('.mov'));
+  }
+
+  function getEffectClass(efecto) {
+    return { shine:'shine', glow:'glow', fire:'fire', neon:'neon', rainbow:'rainbow' }[efecto] || '';
+  }
+
+  function buildPlacaBgHtml(url) {
+    if (!url) return `<div style="position:absolute;inset:0;background:#2e2e3a;border-radius:10px;"></div>`;
+    if (isVideoUrl(url)) {
+      return `<video src="${url}" autoplay loop muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:10px;"></video>`;
+    }
+    return `<div class="placa-bg" style="background-image:url('${url}');"></div>`;
+  }
+
+  function updateCounter() {
+    const count = Object.values(currentAnimations).filter(v => v).length;
+    const el = document.getElementById('animationsCount');
+    if (el) el.textContent = `${count} de 9 activas`;
+  }
+
+  async function saveChanges() {
+    if (!currentUser) return;
+    showLoading(true);
+    try {
+      const equipped = {
+        animaciones: currentAnimations,
+        config: { ...currentConfig, lote: currentLote }
+      };
+      await updateDoc(doc(db, 'users', currentUser.uid), { equipped });
+      if (userProfile) userProfile.equipped = equipped;
+      showToast('¡Cambios guardados!');
+    } catch (error) {
+      console.error(error);
+      showToast('Error al guardar', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function renderContent() {
+    const container = document.getElementById('dynamicContent');
+
+    if (lotesDB.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">💎</div>
+          <h3>Sin lotes activos</h3>
+          <p>Adquiere lotes en la tienda para desbloquear animaciones exclusivas</p>
+          <a href="tienda.html" class="btn-primary" style="display:inline-flex;text-decoration:none;margin:0 auto;max-width:200px;">🛒 Ir a la Tienda</a>
+        </div>
+      `;
+      return;
+    }
+
+    const equippedLoteId = currentLote || lotesDB[0]?.id;
+
+    container.innerHTML = `
+      <div class="user-panel">
+        <div class="user-info">
+          <div class="user-avatar-large">${(userProfile?.name?.[0] || currentUser?.email?.[0] || 'U').toUpperCase()}</div>
+          <div class="user-details">
+            <h3>${userProfile?.name || currentUser?.email?.split('@')[0] || 'Usuario'}</h3>
+            <p>${currentUser?.email}</p>
+          </div>
+        </div>
+        <div class="user-badge-nitro">💎 NITRO ACTIVO • ${lotesDB.length} lote${lotesDB.length !== 1 ? 's' : ''}</div>
+      </div>
+
+      <div class="lotes-section">
+        <div class="section-title"><span>🎯</span> Tus lotes comprados</div>
+        <div class="lotes-grid">
+          ${lotesDB.map(lote => {
+            const isActive = equippedLoteId === lote.id;
+            const colorTexto = lote.colorTexto || '#ffd700';
+            const effectClass = getEffectClass(lote.efectoTexto);
+            return `
+              <div class="lote-card ${isActive ? 'is-active' : ''}" data-lote="${lote.id}">
+                <div class="lote-header">
+                  <div class="lote-icon">🎨</div>
+                  <div class="lote-title">${lote.nombre}</div>
+                </div>
+                <div class="placa-preview-row">
+                  ${buildPlacaBgHtml(lote.fondoPlacaUrl)}
+                  <div class="placa-preview-avatar"></div>
+                  <span class="placa-preview-name ${effectClass}" style="color:${colorTexto};">${lote.nombre}</span>
+                </div>
+                <div class="lote-desc">${lote.descripcion || 'Lote premium con animaciones exclusivas'}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+                  ${lote.fondoPerfilUrl ? '<span style="background:#1a1a2e;padding:3px 8px;border-radius:20px;font-size:10px;">🎬 Fondo</span>' : ''}
+                  ${lote.anilloUrl ? '<span style="background:#1a1a2e;padding:3px 8px;border-radius:20px;font-size:10px;">💍 Anillo</span>' : ''}
+                  ${lote.fondoPlacaUrl ? '<span style="background:#1a1a2e;padding:3px 8px;border-radius:20px;font-size:10px;">🏷️ Placa</span>' : ''}
+                  ${lote.textoGifUrl ? '<span style="background:#1a1a2e;padding:3px 8px;border-radius:20px;font-size:10px;">✨ Texto</span>' : ''}
+                </div>
+                <div class="lote-status ${isActive ? 'status-active' : 'status-owned'}">
+                  ${isActive ? '✅ ACTIVO' : '📦 Click para activar'}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="animaciones-panel">
+        <div class="animaciones-header">
+          <div class="section-title" style="margin-bottom:0;">✨ Personalización de efectos</div>
+          <div class="animaciones-count" id="animationsCount">${Object.values(currentAnimations).filter(v => v).length} de 9 activas</div>
+        </div>
+        <div class="animaciones-grid">
+          ${animaciones.map(anim => `
+            <div class="animacion-item">
+              <div class="animacion-left">
+                <div class="animacion-icon">${anim.icono}</div>
+                <div class="animacion-info">
+                  <h4>${anim.nombre}</h4>
+                  <p>${anim.desc}</p>
+                </div>
+              </div>
+              <div class="discord-toggle ${currentAnimations[anim.id] ? 'active' : ''}" data-anim="${anim.id}"></div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="personalizacion-panel">
+        <div class="section-title">⚙️ Ajustes avanzados</div>
+        <div class="config-row">
+          <div class="config-group">
+            <div class="config-label">
+              <span>🎚️ Intensidad de efectos</span>
+              <span id="intensidadValue">${currentConfig.intensidad}%</span>
+            </div>
+            <input type="range" id="intensidadSlider" min="0" max="100" value="${currentConfig.intensidad}">
+          </div>
+          <div class="config-group">
+            <div class="config-label">⏱️ Duración de entrada</div>
+            <div class="duration-buttons">
+              <div class="duration-btn ${currentConfig.duracion===5?'active':''}" data-dur="5">5s</div>
+              <div class="duration-btn ${currentConfig.duracion===7?'active':''}" data-dur="7">7s</div>
+              <div class="duration-btn ${currentConfig.duracion===10?'active':''}" data-dur="10">10s</div>
+            </div>
+          </div>
+          <div class="config-group">
+            <div class="config-label">🎨 Color principal</div>
+            <div class="color-picker-grid">
+              ${['#5865f2','#ff6b35','#ffd700','#10b981','#eb459e','#8b5cf6'].map(c => `
+                <div class="color-swatch ${currentConfig.color===c?'active':''}" style="background:${c}" data-color="${c}"></div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-primary" id="saveBtn">💾 Guardar cambios</button>
+        <a href="tienda.html" class="btn-secondary">🛒 Comprar más lotes</a>
+      </div>
+    `;
+
+    attachEvents();
+  }
+
+  function attachEvents() {
+    document.querySelectorAll('.discord-toggle').forEach(toggle => {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const animId = toggle.dataset.anim;
+        currentAnimations[animId] = !currentAnimations[animId];
+        toggle.classList.toggle('active');
+        updateCounter();
+      });
+    });
+
+    document.querySelectorAll('.lote-card').forEach(card => {
+      card.addEventListener('click', () => {
+        currentLote = card.dataset.lote;
+        renderContent();
+      });
+    });
+
+    const slider = document.getElementById('intensidadSlider');
+    if (slider) {
+      slider.addEventListener('input', (e) => {
+        currentConfig.intensidad = parseInt(e.target.value);
+        document.getElementById('intensidadValue').textContent = currentConfig.intensidad + '%';
+      });
+    }
+
+    document.querySelectorAll('.duration-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentConfig.duracion = parseInt(btn.dataset.dur);
+        document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.color-swatch').forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        currentConfig.color = swatch.dataset.color;
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+        swatch.classList.add('active');
+      });
+    });
+
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) saveBtn.addEventListener('click', saveChanges);
+  }
+
+  async function loadUserData() {
+    if (!currentUser) return;
+    showLoading(true);
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        userProfile = userSnap.data();
+      } else {
+        userProfile = {
+          name: currentUser.email?.split('@')[0],
+          email: currentUser.email,
+          purchases: [],
+          equipped: { lote: null, animaciones: {}, config: { intensidad: 70, duracion: 7, color: "#5865f2" } }
+        };
+        await setDoc(userRef, userProfile);
+      }
+
+      const purchases = userProfile.purchases || [];
+      lotesDB = [];
+      for (const loteId of purchases) {
+        try {
+          const loteSnap = await getDoc(doc(db, 'lotes', loteId));
+          if (loteSnap.exists() && loteSnap.data().active !== false) {
+            lotesDB.push({ id: loteSnap.id, ...loteSnap.data() });
+          }
+        } catch (e) {
+          console.warn('Lote no encontrado:', loteId);
+        }
+      }
+
+      const equipped = userProfile.equipped || {};
+      currentLote = equipped.config?.lote || equipped.lote || purchases[0] || null;
+      if (currentLote && !purchases.includes(currentLote)) {
+        currentLote = purchases[0] || null;
+      }
+
+      currentAnimations = {
+        placa:      equipped.animaciones?.placa      ?? true,
+        anillo:     equipped.animaciones?.anillo     ?? true,
+        fondo:      equipped.animaciones?.fondo      ?? true,
+        texto:      equipped.animaciones?.texto      ?? true,
+        portada:    equipped.animaciones?.portada    || false,
+        particulas: equipped.animaciones?.particulas || false,
+        entrada:    equipped.animaciones?.entrada    || false,
+        estados:    equipped.animaciones?.estados    || false,
+        insignias:  equipped.animaciones?.insignias  || false,
+      };
+
+      currentConfig = {
+        intensidad: equipped.config?.intensidad || 70,
+        duracion:   equipped.config?.duracion   || 7,
+        color:      equipped.config?.color      || "#5865f2"
+      };
+
+      renderContent();
+    } catch (error) {
+      console.error(error);
+      showToast('Error al cargar datos', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUser = user;
+    loadUserData();
+  });
+</script>
+</body>
+</html>
