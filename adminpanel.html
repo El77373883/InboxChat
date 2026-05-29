@@ -1371,7 +1371,10 @@ anilloModo: document.getElementById('lote-anillo-modo').value || 'spin',
       if (!user) { window.location.href = 'login.html'; return; }
       currentUser = user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));
-      const isAdmin = userDoc.exists() && userDoc.data().username === 'InboxChat';
+      const isAdmin = userDoc.exists() && (
+  userDoc.data().username === 'InboxChat' ||
+  userDoc.data().username === 'adrianortiz200002'
+);
       if (!isAdmin) {
         showToast('Acceso denegado. Solo administradores.', true);
         setTimeout(() => window.location.href = 'index.html', 2000);
