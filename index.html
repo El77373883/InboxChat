@@ -3330,6 +3330,9 @@ document.getElementById('story-viewers-btn')?.addEventListener('click', async ()
     console.log("No eres el dueño de esta historia");
     return;
   }
+
+  console.log('Buscando vistas para historia:', currentStory.id);
+
   
   const viewersList = document.getElementById('viewers-list'); 
   const viewersCount = document.getElementById('viewers-count');
@@ -3338,10 +3341,14 @@ document.getElementById('story-viewers-btn')?.addEventListener('click', async ()
   
   try {
     // SIN orderBy para evitar el error de índice
-    const viewsSnapshot = await getDocs(query(
-      collection(db, 'storyViews'), 
-      where('storyId', '==', currentStory.id)
-    ));
+    console.log('Consultando storyViews donde storyId ==', currentStory.id);
+const viewsSnapshot = await getDocs(query(
+  collection(db, 'storyViews'), 
+  where('storyId', '==', currentStory.id)
+));
+console.log('Documentos encontrados:', viewsSnapshot.size);
+viewsSnapshot.forEach(d => console.log('Vista:', d.id, d.data()));
+
     
     if (viewsSnapshot.empty) { 
       viewersList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)">Aún no hay vistas</div>'; 
