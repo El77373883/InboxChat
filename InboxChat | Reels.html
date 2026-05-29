@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>InboxChat | Reels</title>
+  <!-- PWA CONFIGURACIÓN -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="InboxChat">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="/manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #000;
+      color: white;
+      overflow-x: hidden;
+      height: 100vh;
+    }
+
+    /* HEADER */
+    .reels-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .reels-logo {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .reels-camera {
+      background: none;
+      border: none;
+      color: white;
+      padding: 8px;
+    }
+    .reels-camera svg {
+      width: 24px;
+      height: 24px;
+      stroke: white;
+    }
+
+    /* CONTAINER DE REELS */
+    .reels-container {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .reel-item {
+      height: 100vh;
+      width: 100%;
+      scroll-snap-align: start;
+      position: relative;
+      background: #000;
+    }
+    .reel-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* OVERLAY DE INFORMACIÓN */
+    .reel-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 16px 80px;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      pointer-events: none;
+    }
+    .reel-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      pointer-events: auto;
+    }
+    .reel-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      overflow: hidden;
+    }
+    .reel-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .reel-user-info h4 {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .reel-user-info p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+    }
+    .reel-follow {
+      background: #1877f2;
+      border: none;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: auto;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .reel-caption {
+      font-size: 14px;
+      margin-bottom: 12px;
+      pointer-events: auto;
+      line-height: 1.4;
+    }
+    .reel-music {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      pointer-events: auto;
+    }
+    .reel-music svg {
+      width: 14px;
+      height: 14px;
+      stroke: white;
+    }
+
+    /* ACCIONES LATERALES */
+    .reel-actions {
+      position: absolute;
+      right: 12px;
+      bottom: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      pointer-events: auto;
+      z-index: 20;
+    }
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .action-btn:active {
+      transform: scale(0.9);
+    }
+    .action-btn svg {
+      width: 28px;
+      height: 28px;
+      stroke: white;
+      stroke-width: 1.8;
+      fill: none;
+    }
+    .action-btn.liked svg {
+      fill: #ef4444;
+      stroke: #ef4444;
+    }
+    .action-btn span {
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .menu-dots {
+      position: relative;
+    }
+    .menu-dropdown {
+      position: absolute;
+      right: 0;
+      top: 40px;
+      background: rgba(30,30,35,0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 12px;
+      padding: 8px 0;
+      min-width: 180px;
+      z-index: 30;
+      display: none;
+    }
+    .menu-dropdown.active {
+      display: block;
+    }
+    .menu-dropdown-item {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: white;
+      cursor: pointer;
+    }
+    .menu-dropdown-item:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .menu-dropdown-item.danger {
+      color: #ef4444;
+    }
+
+    /* MODAL DE COMENTARIOS */
+    .comments-modal {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1c1c1e;
+      border-radius: 20px 20px 0 0;
+      z-index: 200;
+      max-height: 70vh;
+      flex-direction: column;
+      animation: slideUp 0.3s ease;
+    }
+    .comments-modal.active {
+      display: flex;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .comments-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .comments-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .comments-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .comments-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      max-height: 50vh;
+    }
+    .comment-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .comment-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .comment-content {
+      flex: 1;
+    }
+    .comment-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .comment-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      margin-top: 2px;
+    }
+    .comment-time {
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+    .comment-input-wrapper {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .comment-input {
+      flex: 1;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 24px;
+      padding: 10px 16px;
+      color: white;
+      font-size: 14px;
+    }
+    .comment-submit {
+      background: #1877f2;
+      border: none;
+      border-radius: 24px;
+      padding: 0 20px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* TAB BAR */
+    .tab-bar-premium {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 12px 20px;
+      z-index: 100;
+    }
+    .tab-premium-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px 12px;
+      border-radius: 12px;
+      color: #8e8e93;
+      text-decoration: none;
+    }
+    .tab-premium-item.active {
+      color: #1877f2;
+    }
+    .tab-premium-item svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+    }
+    .tab-premium-item span {
+      font-size: 10px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<div class="reels-header">
+  <div class="reels-logo">InboxChat Reels</div>
+  <button class="reels-camera" id="camera-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
+  </button>
+</div>
+
+<div class="reels-container" id="reels-container">
+  <!-- REEL 1 -->
+  <div class="reel-item" data-id="reel1">
+    <video class="reel-video" src="https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-woods-3283-large.mp4" loop muted playsinline></video>
+    <div class="reel-overlay">
+      <div class="reel-user">
+        <div class="reel-avatar">🔥</div>
+        <div class="reel-user-info">
+          <h4>Maxcraft <span style="font-size:10px;color:#1877f2;">● 1h</span></h4>
+          <p>3.2M seguidores</p>
+        </div>
+        <button class="reel-follow">Seguir</button>
+      </div>
+      <div class="reel-caption">🔥 SOBREVIVÍ 100 DÍAS como un DIOS DRAGON en MINECRAFT HARDCORE</div>
+      <div class="reel-music">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <span>Música original - Epic Gaming</span>
+      </div>
+    </div>
+    <div class="reel-actions">
+      <button class="action-btn like-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="like-count">125K</span>
+      </button>
+      <button class="action-btn comment-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="comment-count">2.3K</span>
+      </button>
+      <button class="action-btn share-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <span>Compartir</span>
+      </button>
+      <button class="action-btn save-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <span>Guardar</span>
+      </button>
+      <div class="menu-dots">
+        <button class="action-btn menu-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="6" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="18" r="1"/></svg>
+          <span></span>
+        </button>
+        <div class="menu-dropdown">
+          <div class="menu-dropdown-item">🚩 Reportar</div>
+          <div class="menu-dropdown-item">🔇 No me interesa</div>
+          <div class="menu-dropdown-item danger">🚫 Bloquear</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- REEL 2 -->
+<div class="reel-item" data-id="reel2">
+  <video class="reel-video" src="https://www.youtube.com/embed/o6yk4BbYDRA?autoplay=0&mute=1&loop=1&playlist=o6yk4BbYDRA" loop muted playsinline></video>
+  <div class="reel-overlay">
+    <div class="reel-user">
+      <div class="reel-avatar">🌊</div>
+      <div class="reel-user-info">
+        <h4>TravelAddict <span style="font-size:10px;color:#1877f2;">● 3h</span></h4>
+        <p>890K seguidores</p>
+      </div>
+      <button class="reel-follow">Seguir</button>
+    </div>
+    <div class="reel-caption">🌊 Los 7 destinos más hermosos del mundo 🌎</div>
+    <div class="reel-music">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <span>Música - Relaxing Travel</span>
+    </div>
+  </div>
+  <div class="reel-actions">
+    <button class="action-btn like-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="like-count">89K</span></button>
+    <button class="action-btn comment-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="comment-count">1.2K</span></button>
+    <button class="action-btn share-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span>Compartir</span></button>
+    <button class="action-btn save-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Guardar</span></button>
+    <div class="menu-dots"><button class="action-btn menu-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="6" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="18" r="1"/></svg></button><div class="menu-dropdown"><div class="menu-dropdown-item">🚩 Reportar</div><div class="menu-dropdown-item">🔇 No me interesa</div><div class="menu-dropdown-item danger">🚫 Bloquear</div></div></div>
+  </div>
+</div>
+
+<!-- MODAL DE COMENTARIOS -->
+<div class="comments-modal" id="comments-modal">
+  <div class="comments-header">
+    <h3>Comentarios</h3>
+    <button class="comments-close" id="comments-close">×</button>
+  </div>
+  <div class="comments-list" id="comments-list">
+    <div class="comment-item">
+      <div class="comment-avatar">👤</div>
+      <div class="comment-content">
+        <div class="comment-name">JuanPerez</div>
+        <div class="comment-text">Increíble contenido 🔥</div>
+        <div class="comment-time">hace 2h</div>
+      </div>
+    </div>
+  </div>
+  <div class="comment-input-wrapper">
+    <input type="text" class="comment-input" placeholder="Escribe un comentario..." id="comment-input">
+    <button class="comment-submit" id="comment-submit">Enviar</button>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar-premium">
+  <a href="index.html" class="tab-premium-item" id="tab-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Inicio</span></a>
+  <a href="reels.html" class="tab-premium-item active" id="tab-reels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 4v2"/><path d="M16 4v2"/><path d="M2 10h20"/></svg><span>Reels</span></a>
+  <a href="amigos.html" class="tab-premium-item" id="tab-friends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M17 3.5a4 4 0 0 1 0 7"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg><span>Amigos</span></a>
+  <a href="marketplace.html" class="tab-premium-item" id="tab-marketplace"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Marketplace</span></a>
+  <a href="notificaciones.html" class="tab-premium-item" id="tab-notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Notis</span></a>
+</div>
+
+<script>
+  // Auto-play/pause videos on scroll
+  const videos = document.querySelectorAll('.reel-video');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.play();
+      } else {
+        entry.target.pause();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  videos.forEach(video => observer.observe(video));
+
+  // Likes
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('liked');
+      const countSpan = btn.querySelector('.like-count');
+      let count = parseInt(countSpan.innerText.replace(/[^0-9]/g, '')) || 0;
+      if (btn.classList.contains('liked')) {
+        count++;
+        countSpan.innerText = count >= 1000 ? (count/1000).toFixed(1) + 'K' : count;
+      } else {
+        count--;
+        countSpan.innerText = count >= 1000 ? (count/1000).toFixed(1) + 'K' : count;
+      }
+    });
+  });
+
+  // Menú de 3 puntos
+  document.querySelectorAll('.menu-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dropdown = btn.parentElement.querySelector('.menu-dropdown');
+      document.querySelectorAll('.menu-dropdown').forEach(d => {
+        if (d !== dropdown) d.classList.remove('active');
+      });
+      dropdown.classList.toggle('active');
+    });
+  });
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.menu-dropdown').forEach(d => d.classList.remove('active'));
+  });
+
+  // Modal de comentarios
+  const commentsModal = document.getElementById('comments-modal');
+  let currentReel = null;
+
+  document.querySelectorAll('.comment-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentReel = btn.closest('.reel-item');
+      commentsModal.classList.add('active');
+    });
+  });
+
+  document.getElementById('comments-close')?.addEventListener('click', () => {
+    commentsModal.classList.remove('active');
+  });
+
+  document.getElementById('comment-submit')?.addEventListener('click', () => {
+    const input = document.getElementById('comment-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const commentsList = document.getElementById('comments-list');
+    const newComment = document.createElement('div');
+    newComment.className = 'comment-item';
+    newComment.innerHTML = `
+      <div class="comment-avatar">👤</div>
+      <div class="comment-content">
+        <div class="comment-name">Tú</div>
+        <div class="comment-text">${text}</div>
+        <div class="comment-time">Ahora</div>
+      </div>
+    `;
+    commentsList.appendChild(newComment);
+    input.value = '';
+    // Actualizar contador de comentarios
+    if (currentReel) {
+      const countSpan = currentReel.querySelector('.comment-count');
+      let count = parseInt(countSpan.innerText.replace(/[^0-9]/g, '')) || 0;
+      count++;
+      countSpan.innerText = count >= 1000 ? (count/1000).toFixed(1) + 'K' : count;
+    }
+  });
+
+  // Compartir
+  document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      alert('🔗 Enlace copiado para compartir');
+    });
+  });
+
+  // Guardar
+  document.querySelectorAll('.save-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('saved');
+      alert(btn.classList.contains('saved') ? '✅ Guardado en colección' : '❌ Eliminado de guardados');
+    });
+  });
+
+  // Seguir
+  document.querySelectorAll('.reel-follow').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.textContent = btn.textContent === 'Seguir' ? 'Siguiendo' : 'Seguir';
+      btn.style.background = btn.textContent === 'Siguiendo' ? '#2c2c2e' : '#1877f2';
+    });
+  });
+</script>
+</body>
+</html>

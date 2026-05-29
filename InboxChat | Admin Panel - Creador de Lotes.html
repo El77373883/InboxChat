@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>InboxChat | Admin Panel - Creador de Lotes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0f0f1a;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    :root {
+      --primary: #8b5cf6;
+      --primary-dark: #7c3aed;
+      --secondary: #1e1e2e;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #0f0f1a;
+      --gray: #6b7280;
+      --border: #2d2d3a;
+      --radius: 16px;
+      --radius-lg: 24px;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    /* EFECTOS DE TEXTO */
+    .shine { animation: textShine 2s linear infinite; background: linear-gradient(90deg, #fff, #ffd700, #fff); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+    .glow { animation: textGlow 1.5s ease-in-out infinite; text-shadow: 0 0 10px currentColor; }
+    .fire { animation: textFire 0.5s ease-in-out infinite; text-shadow: 0 0 5px #ff4500, 0 0 10px #ff6600; }
+    .neon { animation: textNeon 1s ease-in-out infinite; text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; }
+    .rainbow { animation: textRainbow 3s linear infinite; }
+    
+    @keyframes textShine { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes textGlow { 0%, 100% { text-shadow: 0 0 5px currentColor; } 50% { text-shadow: 0 0 20px currentColor; } }
+    @keyframes textFire { 0%, 100% { text-shadow: 0 0 5px #ff4500; } 50% { text-shadow: 0 0 15px #ff6600, 0 0 5px #ff0000; } }
+    @keyframes textNeon { 0%, 100% { text-shadow: 0 0 5px #00ffff; } 50% { text-shadow: 0 0 20px #00ffff, 0 0 10px #0088ff; } }
+    @keyframes textRainbow { 0% { color: #ff0000; } 17% { color: #ffff00; } 33% { color: #00ff00; } 50% { color: #00ffff; } 67% { color: #0000ff; } 83% { color: #ff00ff; } 100% { color: #ff0000; } }
+
+    /* ANIMACIÓN DEL ANILLO */
+    @keyframes spinRing {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .nav-admin {
+      position: sticky;
+      top: 0;
+      background: rgba(15,15,26,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .admin-badge {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .nav-btn {
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 30px;
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .admin-title h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .admin-title p {
+      color: var(--gray);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .create-placa-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .create-placa-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .admin-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray);
+      cursor: pointer;
+      border-radius: 30px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: var(--secondary);
+    }
+
+    .lotes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .lote-card {
+      background: var(--secondary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .lote-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .lote-info {
+      padding: 16px;
+    }
+
+    .lote-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .lote-price {
+      background: linear-gradient(135deg, var(--success), #059669);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .lote-desc {
+      font-size: 13px;
+      color: var(--gray);
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+
+    .lote-features {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feature-badge {
+      background: var(--dark);
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .lote-stats {
+      display: flex;
+      gap: 16px;
+      margin: 12px 0;
+    }
+
+    .stat {
+      text-align: center;
+      flex: 1;
+    }
+
+    .stat-number {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--gray);
+    }
+
+    .lote-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .lote-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lote-btn.edit {
+      background: var(--primary);
+      color: white;
+    }
+
+    .lote-btn.delete {
+      background: var(--danger);
+      color: white;
+    }
+
+    .lote-btn.toggle {
+      background: var(--secondary);
+      color: white;
+      border: 1px solid var(--border);
+    }
+
+    .lote-btn.toggle.active {
+      background: var(--success);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-badge.active {
+      background: var(--success);
+    }
+
+    .status-badge.inactive {
+      background: var(--gray);
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-container {
+      background: var(--secondary);
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      animation: modalSlideIn 0.3s ease;
+      border: 1px solid var(--border);
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--gray);
+    }
+
+    .modal-body {
+      padding: 20px;
+      max-height: calc(90vh - 140px);
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--gray);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      background: var(--dark);
+      color: white;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: rgba(139,92,246,0.1);
+    }
+
+    /* ===== VISTA PREVIA DEL PERFIL COMPLETO ===== */
+    .preview-perfil {
+      margin-top: 20px;
+      padding: 16px;
+      background: var(--dark);
+      border-radius: 16px;
+    }
+
+    .preview-perfil h4 {
+      font-size: 13px;
+      margin-bottom: 12px;
+      color: var(--gray);
+    }
+
+    .perfil-preview-card {
+      position: relative;
+      min-height: 320px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+    }
+
+    /* Fondo de perfil */
+    .perfil-fondo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .perfil-fondo img,
+    .perfil-fondo video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Contenido del perfil */
+    .perfil-contenido {
+      position: relative;
+      z-index: 1;
+      padding: 40px 20px 30px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      min-height: 320px;
+      justify-content: center;
+    }
+
+    /* Avatar con anillo */
+    .preview-avatar-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 16px;
+    }
+
+    .preview-ring {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .preview-ring-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      animation: spinRing 4s linear infinite;
+    }
+
+    .preview-avatar-big {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      overflow: hidden;
+    }
+
+    .preview-avatar-big img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Nombre con placa */
+    .preview-name-placa {
+      display: inline-block;
+      padding: 8px 24px;
+      border-radius: 40px;
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .preview-username {
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 12px;
+    }
+
+    .preview-badge {
+      background: linear-gradient(135deg, var(--primary), #ec4899);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      padding: 10px 20px;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      padding: 10px 24px;
+      background: var(--primary);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .users-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #ec4899);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .user-email {
+      font-size: 11px;
+      color: var(--gray);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--dark);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      z-index: 2000;
+      transition: transform 0.3s;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .lotes-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .create-placa-btn {
+        justify-content: center;
+      }
+    }
+    
+    @keyframes pulseRing { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+@keyframes bounceRing { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+    
+  </style>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
+<body>
+
+  <nav class="nav-admin">
+    <div class="nav-container">
+      <div class="logo">✨ InboxChat Admin - Creador de Lotes</div>
+      <div class="nav-actions">
+        <span class="admin-badge">👑 Administrador</span>
+        <button class="nav-btn" id="go-to-store">🛒 Tienda</button>
+        <button class="nav-btn" id="go-to-home">🏠 Inicio</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="admin-header">
+      <div class="admin-title">
+        <h1>🎨 Creador de Lotes Premium</h1>
+        <p>Crea lotes con animaciones en: Perfil | Avatar | Nombre | Placa</p>
+      </div>
+      <button class="create-placa-btn" id="create-lote-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        + Nuevo Lote Premium
+      </button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" data-tab="lotes">📦 Lotes</button>
+      <button class="tab-btn" data-tab="usuarios">👥 Usuarios</button>
+      <button class="tab-btn" data-tab="ventas">💰 Ventas</button>
+    </div>
+
+    <div id="lotes-container" class="lotes-grid"></div>
+    <div id="usuarios-container" style="display:none;"></div>
+    <div id="ventas-container" style="display:none;"></div>
+  </div>
+
+  <!-- MODAL CREAR/EDITAR LOTE -->
+  <div id="lote-modal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 id="modal-title">Crear nuevo lote premium</h2>
+        <button class="modal-close" id="modal-close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Nombre del lote *</label>
+          <input type="text" id="lote-nombre" placeholder="Ej: Fuego Élite, Holograma, Nitro Dorado">
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="lote-descripcion" rows="2" placeholder="Describe las animaciones que incluye este lote..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Precio (monedas)</label>
+          <input type="number" id="lote-precio" value="100" min="0">
+        </div>
+
+        <div class="form-group">
+          <label>🎬 1. Fondo animado de PERFIL (GIF/MP4/Imagen)</label>
+          <input type="text" id="lote-fondo-perfil" placeholder="https://... (URL del GIF/MP4 para fondo de perfil)">
+          <div class="upload-area" id="upload-fondo-perfil">📁 Subir GIF/MP4/Imagen</div>
+          <input type="file" id="file-fondo-perfil" accept="image/*,image/gif,video/*" style="display:none">
+        </div>
+
+        <div class="form-group">
+          <label>💍 2. Anillo animado del AVATAR (GIF/MP4 giratorio)</label>
+          <input type="text" id="lote-anillo" placeholder="https://... (URL del GIF/MP4 para el anillo)">
+          <div class="upload-area" id="upload-anillo">📁 Subir GIF/MP4/Imagen</div>
+<input type="file" id="file-anillo" accept="image/*,image/gif,video/*" style="display:none">
+          <select id="lote-anillo-modo" style="margin-top:8px;">
+            <option value="spin">🔄 Girar</option>
+            <option value="static">🔒 Quieto</option>
+            <option value="pulse">💓 Pulsar</option>
+            <option value="bounce">⬆️ Rebotar</option>
+            <option value="spin-reverse">🔁 Girar al revés</option>
+            <option value="spin-slow">🐢 Girar lento</option>
+            <option value="spin-fast">⚡ Girar rápido</option>
+          </select>
+        </div>
+
+
+        <div class="form-group">
+          <label>🏷️ 3. Fondo animado de la PLACA (GIF detrás del nombre)</label>
+          <input type="text" id="lote-fondo-placa" placeholder="https://... (URL del GIF/MP4 para fondo de placa)">
+          <div class="upload-area" id="upload-fondo-placa">📁 Subir GIF/MP4/Imagen</div>
+          <input type="file" id="file-fondo-placa" accept="image/*,image/gif,video/*" style="display:none">
+        </div>
+
+        <div class="form-group">
+          <label>✨ 4. Texto animado del NOMBRE (GIF o efecto)</label>
+          <input type="text" id="lote-texto-gif" placeholder="https://... (URL del GIF/MP4 para el texto)">
+          <div class="upload-area" id="upload-texto-gif">📁 Subir GIF/MP4/Imagen</div>
+          <input type="file" id="file-texto-gif" accept="image/*,image/gif,video/*" style="display:none">
+          <select id="lote-efecto-texto" style="margin-top:8px;">
+            <option value="normal">Normal</option>
+            <option value="shine">Brillo deslizante</option>
+            <option value="glow">Resplandor</option>
+            <option value="fire">Fuego</option>
+            <option value="neon">Neón</option>
+            <option value="rainbow">Arcoíris</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Color del texto</label>
+          <input type="color" id="lote-color-texto" value="#ffd700">
+        </div>
+        
+        <div class="form-group">
+  <label>⏱️ Duración del efecto (segundos)</label>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <input type="range" id="lote-duracion" min="2" max="30" value="5" style="flex:1;" oninput="document.getElementById('duracion-label').textContent=this.value+'s';updatePreview()">
+    <span id="duracion-label" style="font-weight:700;font-size:18px;min-width:40px;">5s</span>
+  </div>
+</div>
+
+
+        <!-- ===== VISTA PREVIA DEL PERFIL COMPLETO ===== -->
+        <div class="preview-perfil">
+          <h4>🎯 VISTA PREVIA DEL PERFIL COMPLETO (cómo se verá)</h4>
+          <div class="perfil-preview-card" id="perfil-preview-card">
+            <!-- Fondo de perfil -->
+            <div class="perfil-fondo" id="preview-fondo-container">
+              <img id="preview-fondo-img" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+              <video id="preview-fondo-video" src="" loop muted autoplay style="display:none; width:100%; height:100%; object-fit:cover;"></video>
+            </div>
+            <!-- Contenido -->
+            <div class="perfil-contenido">
+              <div class="preview-avatar-container">
+                <div class="preview-ring" id="preview-ring">
+                  <img id="preview-ring-img" class="preview-ring-img" src="" style="display:none;">
+                  <video id="preview-ring-video" class="preview-ring-img" src="" loop muted autoplay style="display:none;"></video>
+                </div>
+                <div class="preview-avatar-big" id="preview-avatar">👤</div>
+              </div>
+              <div class="preview-name-placa" id="preview-name-placa">
+                <span id="preview-name-text">Nombre del lote</span>
+              </div>
+              <div class="preview-username">@usuario_premium</div>
+              <div class="preview-badge">⭐ Miembro Premium</div>
+            </div>
+          </div>
+          <p style="font-size:11px; color:var(--gray); text-align:center; margin-top:8px;">✨ Preview actualizado en tiempo real</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="cancel-btn">Cancelar</button>
+        <button class="btn-save" id="save-lote-btn">Publicar en tienda</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="buyers-modal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 id="buyers-title">Compradores</h2>
+        <button class="modal-close" id="buyers-modal-close">×</button>
+      </div>
+      <div class="modal-body" id="buyers-list"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, collection, addDoc, getDocs, getDoc, doc,
+      query, orderBy, deleteDoc, updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_K0MDDuatq8YvrMdAMXOg9NXcZ7q7tm4",
+      authDomain: "facebook-b2f45.firebaseapp.com",
+      projectId: "facebook-b2f45",
+      storageBucket: "facebook-b2f45.firebasestorage.app",
+      messagingSenderId: "865628358385",
+      appId: "1:865628358385:web:fbdb3144e221bad1fccb50"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const CLOUD_NAME = "dupylfzlj";
+    const UPLOAD_PRESET = "inboxchat-stories";
+
+    let currentUser = null;
+    let currentTab = 'lotes';
+    let editingLoteId = null;
+    let lotesData = [];
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.background = isError ? '#ef4444' : '#10b981';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function uploadMedia(file) {
+      if (!file) return null;
+      
+      const fileType = file.type;
+      let resourceType = 'image';
+      if (fileType.startsWith('video/')) resourceType = 'video';
+      if (fileType === 'image/gif') resourceType = 'image';
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
+      formData.append('resource_type', resourceType);
+      
+      try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        return { url: data.secure_url, type: resourceType };
+      } catch (error) {
+        console.error('Error uploading:', error);
+        showToast('Error al subir archivo', true);
+        return null;
+      }
+    }
+
+    function setupUpload(btnId, fileId, inputId, isVideo = false) {
+      const btn = document.getElementById(btnId);
+      const fileInput = document.getElementById(fileId);
+      const textInput = document.getElementById(inputId);
+      if (btn && fileInput && textInput) {
+        btn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            showToast('Subiendo...');
+            const result = await uploadMedia(file);
+            if (result && result.url) {
+              textInput.value = result.url;
+              showToast('✅ Subido correctamente');
+              updatePreview();
+            }
+          }
+          e.target.value = '';
+        });
+      }
+    }
+
+    function updatePreview() {
+      const nombre = document.getElementById('lote-nombre')?.value || "Nombre del lote";
+      const fondoPerfilUrl = document.getElementById('lote-fondo-perfil')?.value || "";
+      const anilloUrl = document.getElementById('lote-anillo')?.value || "";
+      const fondoPlacaUrl = document.getElementById('lote-fondo-placa')?.value || "";
+      const textoGifUrl = document.getElementById('lote-texto-gif')?.value || "";
+      const colorTexto = document.getElementById('lote-color-texto')?.value || "#ffd700";
+      const efectoTexto = document.getElementById('lote-efecto-texto')?.value || "normal";
+      
+      // Actualizar nombre y efecto de texto
+      const previewNameText = document.getElementById('preview-name-text');
+      if (previewNameText) {
+        previewNameText.textContent = nombre;
+        previewNameText.style.color = colorTexto;
+        previewNameText.classList.remove('shine', 'glow', 'fire', 'neon', 'rainbow');
+        if (efectoTexto !== 'normal') {
+          previewNameText.classList.add(efectoTexto);
+        }
+      }
+      
+      // Actualizar fondo de placa
+      const previewNamePlaca = document.getElementById('preview-name-placa');
+      if (previewNamePlaca) {
+        if (fondoPlacaUrl) {
+          previewNamePlaca.style.background = `url(${fondoPlacaUrl}) center/cover`;
+          previewNamePlaca.style.padding = "8px 24px";
+        } else {
+          previewNamePlaca.style.background = "none";
+          previewNamePlaca.style.padding = "0";
+        }
+      }
+      
+      // Actualizar texto animado con GIF
+      if (textoGifUrl && previewNamePlaca) {
+        previewNamePlaca.style.backgroundImage = `url(${textoGifUrl})`;
+        previewNamePlaca.style.backgroundSize = "cover";
+        previewNamePlaca.style.backgroundClip = "text";
+        previewNamePlaca.style.webkitBackgroundClip = "text";
+        previewNamePlaca.style.color = "transparent";
+      } else if (previewNamePlaca) {
+        previewNamePlaca.style.backgroundImage = "none";
+        previewNamePlaca.style.color = colorTexto;
+      }
+      
+      // Actualizar fondo de perfil (imagen o video)
+      const fondoImg = document.getElementById('preview-fondo-img');
+      const fondoVideo = document.getElementById('preview-fondo-video');
+      if (fondoPerfilUrl) {
+        const isVideo = fondoPerfilUrl.includes('.mp4') || fondoPerfilUrl.includes('.webm');
+        if (isVideo) {
+          fondoImg.style.display = 'none';
+          fondoVideo.style.display = 'block';
+          fondoVideo.src = fondoPerfilUrl;
+          fondoVideo.play();
+        } else {
+          fondoImg.style.display = 'block';
+          fondoVideo.style.display = 'none';
+          fondoImg.src = fondoPerfilUrl;
+        }
+      } else {
+        fondoImg.style.display = 'none';
+        fondoVideo.style.display = 'none';
+      }
+      
+      // Actualizar anillo del avatar (imagen o video)
+      const ringImg = document.getElementById('preview-ring-img');
+const ringVideo = document.getElementById('preview-ring-video');
+const anilloModo = document.getElementById('lote-anillo-modo')?.value || 'spin';
+const modos = {
+  'spin': 'spinRing 4s linear infinite',
+  'static': 'none',
+  'pulse': 'pulseRing 1.5s ease-in-out infinite',
+  'bounce': 'bounceRing 1s ease-in-out infinite',
+  'spin-reverse': 'spinRing 4s linear infinite reverse',
+  'spin-slow': 'spinRing 10s linear infinite',
+  'spin-fast': 'spinRing 1s linear infinite'
+};
+if (anilloUrl) {
+  const isVid = anilloUrl.includes('.mp4') || anilloUrl.includes('.webm');
+  if (isVid) {
+    ringImg.style.display = 'none';
+    ringVideo.style.display = 'block';
+    ringVideo.src = anilloUrl;
+    ringVideo.style.animation = modos[anilloModo];
+    ringVideo.play();
+  } else {
+    ringImg.style.display = 'block';
+    ringVideo.style.display = 'none';
+    ringImg.src = anilloUrl;
+    ringImg.style.animation = modos[anilloModo];
+  }
+} else {
+  ringImg.style.display = 'none';
+  ringVideo.style.display = 'none';
+      }
+    }
+
+    async function loadLotes() {
+      const lotesRef = collection(db, 'lotes');
+      const snapshot = await getDocs(query(lotesRef, orderBy('createdAt', 'desc')));
+      lotesData = [];
+      snapshot.forEach(doc => {
+        lotesData.push({ id: doc.id, ...doc.data() });
+      });
+      renderLotes();
+    }
+
+    function renderLotes() {
+      const container = document.getElementById('lotes-container');
+      if (lotesData.length === 0) {
+        container.innerHTML = `<div class="empty-state"><h3>No hay lotes aún</h3><p>Crea tu primer lote premium</p></div>`;
+        return;
+      }
+
+      container.innerHTML = lotesData.map(lote => `
+        <div class="lote-card">
+          <div class="lote-info">
+            <div class="lote-name">
+              ${escapeHtml(lote.nombre)}
+              <span class="lote-price">💰 ${lote.precio} monedas</span>
+              <span class="status-badge ${lote.active !== false ? 'active' : 'inactive'}">${lote.active !== false ? 'Activo' : 'Inactivo'}</span>
+            </div>
+            <div class="lote-desc">${escapeHtml(lote.descripcion || 'Sin descripción')}</div>
+            <div class="lote-features">
+              ${lote.fondoPerfilUrl ? '<span class="feature-badge">🎬 Fondo perfil</span>' : ''}
+              ${lote.anilloUrl ? '<span class="feature-badge">💍 Anillo avatar</span>' : ''}
+              ${lote.fondoPlacaUrl ? '<span class="feature-badge">🏷️ Fondo placa</span>' : ''}
+              ${lote.textoGifUrl ? '<span class="feature-badge">✨ Texto animado</span>' : ''}
+            </div>
+            <div class="lote-stats">
+              <div class="stat"><div class="stat-number">${lote.compradores?.length || 0}</div><div class="stat-label">compradores</div></div>
+              <div class="stat"><div class="stat-number">${lote.ventasTotales || 0}</div><div class="stat-label">ventas</div></div>
+              <div class="stat"><div class="stat-number">💰 ${lote.ingresosTotales || 0}</div><div class="stat-label">ingresos</div></div>
+            </div>
+            <div class="lote-actions">
+              <button class="lote-btn edit" onclick="window.editLote('${lote.id}')">✏️ Editar</button>
+              <button class="lote-btn toggle" onclick="window.toggleLote('${lote.id}', ${lote.active !== false})">${lote.active !== false ? '🔒 Desactivar' : '🔓 Activar'}</button>
+              <button class="lote-btn delete" onclick="window.deleteLote('${lote.id}')">🗑️ Eliminar</button>
+            </div>
+            <button class="lote-btn" style="margin-top:8px; background:var(--primary);" onclick="window.viewBuyers('${lote.id}', '${escapeHtml(lote.nombre)}')">
+              👥 Ver compradores (${lote.compradores?.length || 0})
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.editLote = function(id) {
+      const lote = lotesData.find(l => l.id === id);
+      if (!lote) return;
+      editingLoteId = id;
+      document.getElementById('modal-title').textContent = 'Editar lote';
+      document.getElementById('lote-nombre').value = lote.nombre || '';
+      document.getElementById('lote-descripcion').value = lote.descripcion || '';
+      document.getElementById('lote-precio').value = lote.precio || 100;
+      document.getElementById('lote-fondo-perfil').value = lote.fondoPerfilUrl || '';
+      document.getElementById('lote-anillo').value = lote.anilloUrl || '';
+      document.getElementById('lote-fondo-placa').value = lote.fondoPlacaUrl || '';
+      document.getElementById('lote-texto-gif').value = lote.textoGifUrl || '';
+      document.getElementById('lote-efecto-texto').value = lote.efectoTexto || 'normal';
+      document.getElementById('lote-color-texto').value = lote.colorTexto || '#ffd700';
+      document.getElementById('lote-duracion').value = lote.duracionEfecto || 5;
+document.getElementById('duracion-label').textContent = (lote.duracionEfecto || 5) + 's';
+document.getElementById('lote-anillo-modo').value = lote.anilloModo || 'spin';
+      updatePreview();
+      document.getElementById('lote-modal').classList.add('active');
+    };
+
+    window.toggleLote = async function(id, currentState) {
+      try {
+        await updateDoc(doc(db, 'lotes', id), { active: !currentState });
+        showToast(!currentState ? 'Lote activado' : 'Lote desactivado');
+        loadLotes();
+      } catch (error) {
+        showToast('Error al cambiar estado', true);
+      }
+    };
+
+    window.deleteLote = async function(id) {
+      if (!confirm('¿Eliminar este lote? Los usuarios que lo compraron lo perderán.')) return;
+      try {
+        await deleteDoc(doc(db, 'lotes', id));
+        showToast('Lote eliminado');
+        loadLotes();
+      } catch (error) {
+        showToast('Error al eliminar', true);
+      }
+    };
+
+    window.viewBuyers = async function(loteId, loteNombre) {
+      const lote = lotesData.find(l => l.id === loteId);
+      const buyersList = document.getElementById('buyers-list');
+      if (!lote?.compradores || lote.compradores.length === 0) {
+        buyersList.innerHTML = '<div class="empty-state">No hay compradores aún</div>';
+        document.getElementById('buyers-title').textContent = `Compradores de ${loteNombre}`;
+        document.getElementById('buyers-modal').classList.add('active');
+        return;
+      }
+
+      buyersList.innerHTML = '<div style="text-align:center;padding:20px">Cargando...</div>';
+      document.getElementById('buyers-title').textContent = `Compradores de ${loteNombre}`;
+      document.getElementById('buyers-modal').classList.add('active');
+
+      try {
+        const buyersData = [];
+        for (const uid of lote.compradores) {
+          const userDoc = await getDoc(doc(db, 'users', uid));
+          if (userDoc.exists()) {
+            buyersData.push({ uid, ...userDoc.data() });
+          }
+        }
+        if (buyersData.length === 0) {
+          buyersList.innerHTML = '<div class="empty-state">No hay compradores aún</div>';
+        } else {
+          buyersList.innerHTML = buyersData.map(user => `
+            <div class="user-item">
+              <div class="user-avatar">${user.name?.charAt(0).toUpperCase() || 'U'}</div>
+              <div class="user-info">
+                <div class="user-name">${escapeHtml(user.name || 'Usuario')}</div>
+                <div class="user-email">${user.email || ''}</div>
+              </div>
+              <div class="user-placa">🎖️ ${escapeHtml(loteNombre)}</div>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        buyersList.innerHTML = '<div class="empty-state">Error al cargar compradores</div>';
+      }
+    };
+
+    async function saveLote() {
+      const nombre = document.getElementById('lote-nombre').value.trim();
+      const descripcion = document.getElementById('lote-descripcion').value.trim();
+      const precio = parseInt(document.getElementById('lote-precio').value) || 100;
+      const fondoPerfilUrl = document.getElementById('lote-fondo-perfil').value.trim();
+      const anilloUrl = document.getElementById('lote-anillo').value.trim();
+      const fondoPlacaUrl = document.getElementById('lote-fondo-placa').value.trim();
+      const textoGifUrl = document.getElementById('lote-texto-gif').value.trim();
+      const efectoTexto = document.getElementById('lote-efecto-texto').value;
+      const colorTexto = document.getElementById('lote-color-texto').value;
+
+      if (!nombre) {
+        showToast('El nombre del lote es obligatorio', true);
+        return;
+      }
+
+      const ahora = new Date();
+      const loteData = {
+        nombre, descripcion, precio,
+        fondoPerfilUrl, anilloUrl, fondoPlacaUrl, textoGifUrl,
+        efectoTexto, colorTexto,
+        duracionEfecto: parseInt(document.getElementById('lote-duracion').value) || 5,
+anilloModo: document.getElementById('lote-anillo-modo').value || 'spin',
+        active: true,
+        compradores: [],
+        ventasTotales: 0,
+        ingresosTotales: 0,
+        createdAt: ahora,
+        updatedAt: ahora
+      };
+
+      try {
+        if (editingLoteId) {
+          await updateDoc(doc(db, 'lotes', editingLoteId), { ...loteData, updatedAt: ahora });
+          showToast('✅ Lote actualizado');
+        } else {
+          await addDoc(collection(db, 'lotes'), loteData);
+          showToast('✅ Lote publicado en la tienda');
+        }
+        closeModal();
+        loadLotes();
+        resetForm();
+      } catch (error) {
+        showToast('❌ Error al guardar: ' + error.message, true);
+      }
+    }
+
+    function resetForm() {
+      editingLoteId = null;
+      document.getElementById('modal-title').textContent = 'Crear nuevo lote premium';
+      document.getElementById('lote-nombre').value = '';
+      document.getElementById('lote-descripcion').value = '';
+      document.getElementById('lote-precio').value = '100';
+      document.getElementById('lote-fondo-perfil').value = '';
+      document.getElementById('lote-anillo').value = '';
+      document.getElementById('lote-fondo-placa').value = '';
+      document.getElementById('lote-texto-gif').value = '';
+      document.getElementById('lote-efecto-texto').value = 'normal';
+      document.getElementById('lote-color-texto').value = '#ffd700';
+      updatePreview();
+    }
+
+    function closeModal() {
+      document.getElementById('lote-modal').classList.remove('active');
+    }
+
+    async function loadUsuarios() {
+      const container = document.getElementById('usuarios-container');
+      container.innerHTML = '<div class="empty-state">Cargando usuarios...</div>';
+      try {
+        const usersRef = collection(db, 'users');
+        const snapshot = await getDocs(usersRef);
+        const users = [];
+        snapshot.forEach(doc => {
+          users.push({ uid: doc.id, ...doc.data() });
+        });
+        if (users.length === 0) {
+          container.innerHTML = '<div class="empty-state">No hay usuarios registrados</div>';
+          return;
+        }
+        container.innerHTML = `
+          <div class="users-list">
+            ${users.map(user => `
+              <div class="user-item">
+                <div class="user-avatar">${user.name?.charAt(0).toUpperCase() || 'U'}</div>
+                <div class="user-info">
+                  <div class="user-name">${escapeHtml(user.name || 'Usuario')}</div>
+                  <div class="user-email">${user.email || ''}</div>
+                </div>
+                <div class="user-placa">${user.purchases?.length || 0} lotes comprados</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (error) {
+        container.innerHTML = '<div class="empty-state">Error al cargar usuarios</div>';
+      }
+    }
+
+    async function loadVentas() {
+      const container = document.getElementById('ventas-container');
+      container.innerHTML = '<div class="empty-state">Cargando estadísticas...</div>';
+      try {
+        const lotesRef = collection(db, 'lotes');
+        const snapshot = await getDocs(lotesRef);
+        let totalVentas = 0;
+        let totalIngresos = 0;
+        const ventasPorLote = [];
+        snapshot.forEach(doc => {
+          const lote = doc.data();
+          const ventas = lote.ventasTotales || 0;
+          const ingresos = lote.ingresosTotales || 0;
+          totalVentas += ventas;
+          totalIngresos += ingresos;
+          ventasPorLote.push({ nombre: lote.nombre, ventas, ingresos });
+        });
+        container.innerHTML = `
+          <div class="lotes-grid" style="grid-template-columns:1fr 1fr; margin-bottom:24px;">
+            <div class="lote-card" style="text-align:center; padding:24px;">
+              <div class="stat-number" style="font-size:36px;">💰 ${totalIngresos}</div>
+              <div class="stat-label">Ingresos totales</div>
+            </div>
+            <div class="lote-card" style="text-align:center; padding:24px;">
+              <div class="stat-number" style="font-size:36px;">📦 ${totalVentas}</div>
+              <div class="stat-label">Ventas totales</div>
+            </div>
+          </div>
+          <div class="lotes-grid">
+            ${ventasPorLote.map(v => `
+              <div class="lote-card" style="padding:16px;">
+                <div class="lote-name">${escapeHtml(v.nombre)}</div>
+                <div class="lote-stats" style="margin-top:12px;">
+                  <div class="stat"><div class="stat-number">${v.ventas}</div><div class="stat-label">ventas</div></div>
+                  <div class="stat"><div class="stat-number">💰 ${v.ingresos}</div><div class="stat-label">ingresos</div></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (error) {
+        container.innerHTML = '<div class="empty-state">Error al cargar ventas</div>';
+      }
+    }
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTab = btn.dataset.tab;
+        document.getElementById('lotes-container').style.display = currentTab === 'lotes' ? 'grid' : 'none';
+        document.getElementById('usuarios-container').style.display = currentTab === 'usuarios' ? 'block' : 'none';
+        document.getElementById('ventas-container').style.display = currentTab === 'ventas' ? 'block' : 'none';
+        if (currentTab === 'lotes') loadLotes();
+        else if (currentTab === 'usuarios') loadUsuarios();
+        else if (currentTab === 'ventas') loadVentas();
+      });
+    });
+
+    document.getElementById('create-lote-btn').addEventListener('click', () => {
+      resetForm();
+      document.getElementById('lote-modal').classList.add('active');
+    });
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('cancel-btn').addEventListener('click', closeModal);
+    document.getElementById('save-lote-btn').addEventListener('click', saveLote);
+    document.getElementById('buyers-modal-close').addEventListener('click', () => {
+      document.getElementById('buyers-modal').classList.remove('active');
+    });
+    document.getElementById('go-to-store').addEventListener('click', () => {
+      window.location.href = 'tienda.html';
+    });
+    document.getElementById('go-to-home').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    // Inputs para vista previa
+    const previewInputs = ['lote-nombre', 'lote-fondo-perfil', 'lote-anillo', 'lote-anillo-modo', 'lote-fondo-placa', 'lote-texto-gif', 'lote-color-texto', 'lote-efecto-texto'];
+    previewInputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', updatePreview);
+        el.addEventListener('change', updatePreview);
+      }
+    });
+
+    // Subidas
+    setupUpload('upload-fondo-perfil', 'file-fondo-perfil', 'lote-fondo-perfil');
+    setupUpload('upload-anillo', 'file-anillo', 'lote-anillo');
+    setupUpload('upload-fondo-placa', 'file-fondo-placa', 'lote-fondo-placa');
+    setupUpload('upload-texto-gif', 'file-texto-gif', 'lote-texto-gif');
+
+    setTimeout(() => updatePreview(), 100);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      currentUser = user;
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const isAdmin = userDoc.exists() && userDoc.data().username === 'InboxChat';
+      if (!isAdmin) {
+        showToast('Acceso denegado. Solo administradores.', true);
+        setTimeout(() => window.location.href = 'index.html', 2000);
+        return;
+      }
+      loadLotes();
+    });
+  </script>
+</body>
+</html>
